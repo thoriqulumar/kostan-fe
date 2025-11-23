@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Kost Management Frontend - Setup Guide
+# ======================================
+
+echo "🏠 Kost Management Frontend Setup"
+echo "=================================="
+echo ""
+echo "This project is ready to use! Follow these steps:"
+echo ""
+echo "1. Download the entire 'kostan-fe' folder to your local machine"
+echo ""
+echo "2. Open Terminal and navigate to your project:"
+echo "   cd /Users/thoriqulumar/Programming/kostan/kostan-fe"
+echo ""
+echo "3. Install dependencies:"
+echo "   npm install"
+echo ""
+echo "4. Start the development server:"
+echo "   npm run dev"
+echo ""
+echo "5. Open your browser and visit:"
+echo "   http://localhost:5173"
+echo ""
+echo "🎉 That's it! Your Kost Management app should now be running!"
+echo ""
+echo "📝 Additional Commands:"
+echo "   npm run build   - Build for production"
+echo "   npm run preview - Preview production build"
+echo ""
