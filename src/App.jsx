@@ -1,19 +1,24 @@
 import React, { useState } from "react";
 import { Building2 } from "lucide-react";
 import Dashboard from "./Dashboard";
+import AdminDashboard from "./AdminDashboard";
+import { useAuth } from "./context/AuthContext";
+import authService from "./services/authService";
 
 function App() {
+  const { isAuthenticated, loading, user } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     fullName: "",
     phone: "",
-    accountType: "member",
   });
+
+  const { login } = useAuth();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -21,50 +26,69 @@ function App() {
       ...prev,
       [name]: value,
     }));
+    // Clear error when user starts typing
+    if (error) setError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isLogin) {
-      console.log("Login submitted:", {
-        email: formData.email,
-        password: formData.password,
+    setError("");
+    setIsSubmitting(true);
+
+    try {
+      console.log({isLogin})
+      if (isLogin) {
+        // Login
+        const response = await authService.login(
+          formData.email,
+          formData.password
+        );
+        login(response.user, response.token);
+      } else {
+        // Register
+        const response = await authService.register(
+          formData.fullName,
+          formData.email,
+          formData.phone,
+          formData.password
+        );
+        login(response.user, response.token);
+      }
+
+      // Clear form after successful login/register
+      setFormData({
+        email: "",
+        password: "",
+        fullName: "",
+        phone: "",
       });
-      // Simulate successful login
-      setCurrentUser({
-        email: formData.email,
-        fullName: formData.fullName || "User",
-        accountType: "member",
-      });
-      setIsAuthenticated(true);
-    } else {
-      console.log("Register submitted:", formData);
-      // Simulate successful registration
-      setCurrentUser({
-        email: formData.email,
-        fullName: formData.fullName,
-        phone: formData.phone,
-        accountType: formData.accountType,
-      });
-      setIsAuthenticated(true);
+    } catch (err) {
+      console.error("Auth error:", err);
+      setError(
+        err.message ||
+          (isLogin ? "Login gagal. Periksa email dan password Anda." : "Registrasi gagal. Silakan coba lagi.")
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    setCurrentUser(null);
-    setFormData({
-      email: "",
-      password: "",
-      fullName: "",
-      phone: "",
-      accountType: "member",
-    });
-  };
+  // Show loading spinner while checking auth state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" }}>
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    );
+  }
 
-  // If authenticated, show dashboard
-  if (isAuthenticated && currentUser) {
-    return <Dashboard user={currentUser} onLogout={handleLogout} />;
+  // If authenticated, show dashboard based on user role
+  if (isAuthenticated) {
+    // Admin users see AdminDashboard, regular users see Dashboard
+    if (user?.role === 'admin') {
+      return <AdminDashboard />;
+    }
+    return <Dashboard />;
   }
 
   // Otherwise, show login/register form
@@ -233,13 +257,22 @@ function App() {
                   required
                 />
               </div>
+
+              {/* Error Message */}
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+                  {error}
+                </div>
+              )}
+
               {/* Submit Button */}
               <button
                 type="submit"
-                className="w-full bg-gray-900 text-white py-3.5 rounded-xl font-semibold hover:bg-gray-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 mt-2"
+                disabled={isSubmitting}
+                className="w-full bg-gray-900 text-white py-3.5 rounded-xl font-semibold hover:bg-gray-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ fontFamily: '"Inter", sans-serif' }}
               >
-                {isLogin ? "Masuk" : "Daftar"}
+                {isSubmitting ? "Memproses..." : isLogin ? "Masuk" : "Daftar"}
               </button>
             </form>
           </div>
