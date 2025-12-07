@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Building2, LayoutDashboard, CreditCard, LogOut, Home, MapPin, DollarSign, Calendar } from 'lucide-react';
+import { Building2, LayoutDashboard, CreditCard, LogOut, Home, MapPin, DollarSign, Calendar, Menu, X } from 'lucide-react';
 import { useAuth } from './context/AuthContext';
 import authService from './services/authService';
 import rentalService from './services/rentalService';
@@ -11,6 +11,7 @@ const Dashboard = () => {
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [myRoom, setMyRoom] = useState(null);
   const [loadingRoom, setLoadingRoom] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     fetchMyRoom();
@@ -50,8 +51,18 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
+      {/* Mobile Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
+      <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 flex flex-col transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}>
         {/* Logo Section */}
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center space-x-3">
@@ -72,8 +83,11 @@ const Dashboard = () => {
         {/* Navigation */}
         <nav className="flex-1 p-4">
           <div className="space-y-2">
-            <button 
-              onClick={() => setCurrentPage('dashboard')}
+            <button
+              onClick={() => {
+                setCurrentPage('dashboard');
+                setIsSidebarOpen(false);
+              }}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
                 currentPage === 'dashboard'
                   ? 'bg-blue-600 text-white'
@@ -83,8 +97,11 @@ const Dashboard = () => {
               <LayoutDashboard className="w-5 h-5" />
               <span style={{ fontFamily: '"Inter", sans-serif' }}>Dashboard</span>
             </button>
-            <button 
-              onClick={() => setCurrentPage('pembayaran')}
+            <button
+              onClick={() => {
+                setCurrentPage('pembayaran');
+                setIsSidebarOpen(false);
+              }}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
                 currentPage === 'pembayaran'
                   ? 'bg-blue-600 text-white'
@@ -120,25 +137,34 @@ const Dashboard = () => {
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-8 py-6">
+        <header className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <div className="flex items-start justify-between">
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-1" style={{ fontFamily: '"DM Sans", sans-serif' }}>
-                {currentPage === 'dashboard' ? 'Dashboard' : 'Pembayaran'}
-              </h2>
-              <p className="text-gray-600" style={{ fontFamily: '"Inter", sans-serif' }}>
-                {currentPage === 'dashboard'
-                  ? `Selamat datang, ${user.fullName?.split(' ')[0] || 'thor'}`
-                  : 'Kelola pembayaran sewa kamar Anda'
-                }
-              </p>
+            <div className="flex items-center gap-3">
+              {/* Mobile Hamburger Menu */}
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <Menu className="w-6 h-6 text-gray-700" />
+              </button>
+              <div>
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1" style={{ fontFamily: '"DM Sans", sans-serif' }}>
+                  {currentPage === 'dashboard' ? 'Dashboard' : 'Pembayaran'}
+                </h2>
+                <p className="text-sm sm:text-base text-gray-600" style={{ fontFamily: '"Inter", sans-serif' }}>
+                  {currentPage === 'dashboard'
+                    ? `Selamat datang, ${user.fullName?.split(' ')[0] || 'thor'}`
+                    : 'Kelola pembayaran sewa kamar Anda'
+                  }
+                </p>
+              </div>
             </div>
             <NotificationBell />
           </div>
         </header>
 
         {/* Content Area */}
-        <div className="p-8">
+        <div className="p-4 sm:p-6 lg:p-8">
           {currentPage === 'dashboard' ? (
             loadingRoom ? (
               /* Loading State */
@@ -162,7 +188,7 @@ const Dashboard = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
                       <div className="flex items-center space-x-3">
                         <div className="bg-white/20 rounded-lg p-2">
@@ -170,7 +196,7 @@ const Dashboard = () => {
                         </div>
                         <div>
                           <p className="text-blue-100 text-xs mb-1">Harga Sewa per Bulan</p>
-                          <p className="text-xl font-bold">{formatCurrency(myRoom.price)}</p>
+                          <p className="text-lg sm:text-xl font-bold">{formatCurrency(myRoom.price)}</p>
                         </div>
                       </div>
                     </div>
@@ -183,7 +209,7 @@ const Dashboard = () => {
                           </div>
                           <div>
                             <p className="text-blue-100 text-xs mb-1">Mulai Sewa</p>
-                            <p className="text-xl font-bold">
+                            <p className="text-lg sm:text-xl font-bold">
                               {new Date(myRoom.rentStartDate).toLocaleDateString('id-ID', {
                                 day: 'numeric',
                                 month: 'long',
@@ -198,16 +224,16 @@ const Dashboard = () => {
                 </div>
 
                 {/* Info Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   {/* Payment Reminder */}
-                  <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                    <div className="flex items-start space-x-4">
-                      <div className="bg-blue-100 rounded-xl p-3">
-                        <CreditCard className="w-6 h-6 text-blue-600" />
+                  <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6">
+                    <div className="flex items-start space-x-3 sm:space-x-4">
+                      <div className="bg-blue-100 rounded-xl p-2 sm:p-3">
+                        <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-900 mb-1">Pembayaran Bulanan</h4>
-                        <p className="text-sm text-gray-600">
+                        <h4 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Pembayaran Bulanan</h4>
+                        <p className="text-xs sm:text-sm text-gray-600">
                           Jangan lupa untuk membayar sewa setiap bulan. Upload bukti pembayaran di menu Pembayaran.
                         </p>
                       </div>
@@ -215,14 +241,14 @@ const Dashboard = () => {
                   </div>
 
                   {/* Contact Info */}
-                  <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                    <div className="flex items-start space-x-4">
-                      <div className="bg-green-100 rounded-xl p-3">
-                        <MapPin className="w-6 h-6 text-green-600" />
+                  <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6">
+                    <div className="flex items-start space-x-3 sm:space-x-4">
+                      <div className="bg-green-100 rounded-xl p-2 sm:p-3">
+                        <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-900 mb-1">Butuh Bantuan?</h4>
-                        <p className="text-sm text-gray-600">
+                        <h4 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Butuh Bantuan?</h4>
+                        <p className="text-xs sm:text-sm text-gray-600">
                           Hubungi admin jika ada pertanyaan tentang kamar atau pembayaran Anda.
                         </p>
                       </div>
@@ -232,14 +258,14 @@ const Dashboard = () => {
               </div>
             ) : (
               /* Dashboard Empty State Card */
-              <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center">
-                <div className="inline-flex items-center justify-center w-24 h-24 bg-gray-100 rounded-full mb-6">
-                  <Home className="w-12 h-12 text-gray-400" strokeWidth={1.5} />
+              <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 lg:p-12 text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-gray-100 rounded-full mb-4 sm:mb-6">
+                  <Home className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 text-gray-400" strokeWidth={1.5} />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-3" style={{ fontFamily: '"DM Sans", sans-serif' }}>
+                <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-2 sm:mb-3" style={{ fontFamily: '"DM Sans", sans-serif' }}>
                   Belum Ada Penyewaan
                 </h3>
-                <p className="text-gray-600 max-w-md mx-auto" style={{ fontFamily: '"Inter", sans-serif' }}>
+                <p className="text-sm sm:text-base text-gray-600 max-w-md mx-auto" style={{ fontFamily: '"Inter", sans-serif' }}>
                   Anda belum memiliki kamar yang disewa. Silakan hubungi admin untuk menyewa kamar.
                 </p>
               </div>

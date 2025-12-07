@@ -234,37 +234,37 @@ const ExpenseManagement = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Total Pengeluaran</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+              <p className="text-xs sm:text-sm text-gray-600 mb-1">Total Pengeluaran</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.total}</p>
             </div>
-            <Receipt className="w-10 h-10 text-purple-500" />
+            <Receipt className="w-8 h-8 sm:w-10 sm:h-10 text-purple-500" />
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-5 md:col-span-3">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5 sm:col-span-1 md:col-span-3">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Total Biaya</p>
-              <p className="text-2xl font-bold text-red-600">{formatCurrency(stats.totalAmount)}</p>
+              <p className="text-xs sm:text-sm text-gray-600 mb-1">Total Biaya</p>
+              <p className="text-xl sm:text-2xl font-bold text-red-600">{formatCurrency(stats.totalAmount)}</p>
             </div>
-            <TrendingDown className="w-10 h-10 text-red-500" />
+            <TrendingDown className="w-8 h-8 sm:w-10 sm:h-10 text-red-500" />
           </div>
         </div>
       </div>
 
       {/* Category Breakdown */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">Pengeluaran per Kategori</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+      <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200 p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Pengeluaran per Kategori</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 sm:gap-3">
           {Object.entries(EXPENSE_CATEGORIES).map(([key, label]) => (
-            <div key={key} className="bg-gray-50 rounded-lg p-3">
+            <div key={key} className="bg-gray-50 rounded-lg p-2 sm:p-3">
               <p className="text-xs text-gray-600 mb-1">{label}</p>
-              <p className="text-sm font-bold text-purple-600">
+              <p className="text-xs sm:text-sm font-bold text-purple-600">
                 {formatCurrency(stats.byCategory[key] || 0)}
               </p>
             </div>
@@ -273,35 +273,35 @@ const ExpenseManagement = () => {
       </div>
 
       {/* Filters and Add Button */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-6">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
+      <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200 p-4 sm:p-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 flex-1">
             {/* Search */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                 Cari Pengeluaran
               </label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Deskripsi atau kategori..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full pl-9 sm:pl-10 pr-4 py-2 text-sm sm:text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
             </div>
 
             {/* Category Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                 Kategori
               </label>
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-4 py-2 text-sm sm:text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               >
                 <option value="all">Semua Kategori</option>
                 {Object.entries(EXPENSE_CATEGORIES).map(([key, label]) => (
@@ -312,13 +312,13 @@ const ExpenseManagement = () => {
 
             {/* Month Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                 Bulan
               </label>
               <select
                 value={monthFilter}
                 onChange={(e) => setMonthFilter(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-4 py-2 text-sm sm:text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               >
                 <option value="all">Semua Bulan</option>
                 {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
@@ -331,13 +331,13 @@ const ExpenseManagement = () => {
 
             {/* Year Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                 Tahun
               </label>
               <select
                 value={yearFilter}
                 onChange={(e) => setYearFilter(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-4 py-2 text-sm sm:text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               >
                 <option value="all">Semua Tahun</option>
                 {getUniqueYears().map((year) => (
@@ -355,7 +355,7 @@ const ExpenseManagement = () => {
               resetForm();
               setShowAddModal(true);
             }}
-            className="bg-purple-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-purple-700 transition-all flex items-center space-x-2 whitespace-nowrap"
+            className="w-full md:w-auto bg-purple-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-purple-700 transition-all flex items-center justify-center space-x-2 whitespace-nowrap"
           >
             <Plus className="w-5 h-5" />
             <span>Tambah Pengeluaran</span>
@@ -364,17 +364,68 @@ const ExpenseManagement = () => {
       </div>
 
       {/* Expenses Table */}
-      <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200 overflow-hidden">
         {filteredExpenses.length === 0 ? (
           <div className="text-center py-12">
-            <Receipt className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-600">
+            <Receipt className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 mx-auto mb-4" />
+            <p className="text-sm sm:text-base text-gray-600">
               {searchQuery ? 'Tidak ada pengeluaran yang cocok dengan pencarian' : 'Belum ada pengeluaran'}
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
+          <>
+            {/* Mobile Card View */}
+            <div className="md:hidden divide-y divide-gray-200">
+              {filteredExpenses.map((expense) => (
+                <div key={expense.id} className="p-4 hover:bg-gray-50 transition-colors">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 mb-2">
+                        {EXPENSE_CATEGORIES[expense.category]}
+                      </span>
+                      <p className="text-sm font-medium text-gray-900">{expense.description}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 mb-3">
+                    <div>
+                      <p className="text-xs text-gray-500">Tanggal</p>
+                      <p className="text-sm text-gray-900 flex items-center">
+                        <Calendar className="w-4 h-4 text-gray-400 mr-1" />
+                        {new Date(expense.expenseDate).toLocaleDateString('id-ID')}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Jumlah</p>
+                      <p className="text-sm font-bold text-red-600">
+                        {formatCurrency(expense.amount)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => openEditModal(expense)}
+                      className="flex-1 inline-flex items-center justify-center space-x-1 text-blue-600 hover:text-blue-800 text-sm font-medium py-2 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                      <span>Edit</span>
+                    </button>
+                    <button
+                      onClick={() => handleDeleteExpense(expense)}
+                      className="flex-1 inline-flex items-center justify-center space-x-1 text-red-600 hover:text-red-800 text-sm font-medium py-2 border border-red-200 rounded-lg hover:bg-red-50 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>Hapus</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -441,15 +492,16 @@ const ExpenseManagement = () => {
               </tbody>
             </table>
           </div>
+          </>
         )}
       </div>
 
       {/* Add Expense Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full">
-            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-              <h3 className="text-xl font-bold text-gray-900">Tambah Pengeluaran</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white rounded-xl sm:rounded-2xl max-w-md w-full max-h-[90vh] overflow-auto">
+            <div className="p-4 sm:p-6 border-b border-gray-200 flex items-center justify-between">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900">Tambah Pengeluaran</h3>
               <button
                 onClick={() => {
                   setShowAddModal(false);
@@ -457,13 +509,13 @@ const ExpenseManagement = () => {
                 }}
                 className="text-gray-400 hover:text-gray-600"
               >
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
             </div>
 
-            <form onSubmit={handleAddExpense} className="p-6 space-y-4">
+            <form onSubmit={handleAddExpense} className="p-4 sm:p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   Jumlah <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -473,12 +525,12 @@ const ExpenseManagement = () => {
                   onChange={handleInputChange}
                   placeholder="1.500.000"
                   required
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 text-sm sm:text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   Kategori <span className="text-red-500">*</span>
                 </label>
                 <select
@@ -486,7 +538,7 @@ const ExpenseManagement = () => {
                   value={formData.category}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 text-sm sm:text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
                   {Object.entries(EXPENSE_CATEGORIES).map(([key, label]) => (
                     <option key={key} value={key}>{label}</option>
@@ -495,7 +547,7 @@ const ExpenseManagement = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   Deskripsi <span className="text-red-500">*</span>
                 </label>
                 <textarea
@@ -505,12 +557,12 @@ const ExpenseManagement = () => {
                   placeholder="Tagihan listrik bulan November..."
                   rows="3"
                   required
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 text-sm sm:text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   Tanggal <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -519,12 +571,12 @@ const ExpenseManagement = () => {
                   value={formData.expenseDate}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 text-sm sm:text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   URL Bukti/Invoice (Opsional)
                 </label>
                 <input
@@ -533,24 +585,24 @@ const ExpenseManagement = () => {
                   value={formData.receiptUrl}
                   onChange={handleInputChange}
                   placeholder="https://example.com/receipt.jpg"
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 text-sm sm:text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
 
-              <div className="flex space-x-3 pt-4">
+              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 pt-4">
                 <button
                   type="button"
                   onClick={() => {
                     setShowAddModal(false);
                     resetForm();
                   }}
-                  className="flex-1 px-4 py-2 border border-gray-200 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-all"
+                  className="w-full sm:flex-1 px-4 py-2 border border-gray-200 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-all"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-all"
+                  className="w-full sm:flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-all"
                 >
                   Tambah
                 </button>
@@ -562,10 +614,10 @@ const ExpenseManagement = () => {
 
       {/* Edit Expense Modal */}
       {showEditModal && selectedExpense && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full">
-            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-              <h3 className="text-xl font-bold text-gray-900">Edit Pengeluaran</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white rounded-xl sm:rounded-2xl max-w-md w-full max-h-[90vh] overflow-auto">
+            <div className="p-4 sm:p-6 border-b border-gray-200 flex items-center justify-between">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900">Edit Pengeluaran</h3>
               <button
                 onClick={() => {
                   setShowEditModal(false);
@@ -574,11 +626,11 @@ const ExpenseManagement = () => {
                 }}
                 className="text-gray-400 hover:text-gray-600"
               >
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
             </div>
 
-            <form onSubmit={handleEditExpense} className="p-6 space-y-4">
+            <form onSubmit={handleEditExpense} className="p-4 sm:p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Jumlah <span className="text-red-500">*</span>

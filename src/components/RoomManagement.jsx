@@ -226,43 +226,43 @@ const RoomManagement = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Total Kamar</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+              <p className="text-xs sm:text-sm text-gray-600 mb-1">Total Kamar</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.total}</p>
             </div>
-            <Home className="w-10 h-10 text-purple-500" />
+            <Home className="w-8 h-8 sm:w-10 sm:h-10 text-purple-500" />
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Kamar Tersewa</p>
-              <p className="text-2xl font-bold text-green-600">{stats.rented}</p>
+              <p className="text-xs sm:text-sm text-gray-600 mb-1">Kamar Tersewa</p>
+              <p className="text-xl sm:text-2xl font-bold text-green-600">{stats.rented}</p>
             </div>
-            <Users className="w-10 h-10 text-green-500" />
+            <Users className="w-8 h-8 sm:w-10 sm:h-10 text-green-500" />
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Kamar Kosong</p>
-              <p className="text-2xl font-bold text-blue-600">{stats.available}</p>
+              <p className="text-xs sm:text-sm text-gray-600 mb-1">Kamar Kosong</p>
+              <p className="text-xl sm:text-2xl font-bold text-blue-600">{stats.available}</p>
             </div>
-            <Home className="w-10 h-10 text-blue-500" />
+            <Home className="w-8 h-8 sm:w-10 sm:h-10 text-blue-500" />
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Potensi Pendapatan</p>
-              <p className="text-xl font-bold text-purple-600">{formatCurrency(stats.totalRevenue)}</p>
+              <p className="text-xs sm:text-sm text-gray-600 mb-1">Potensi Pendapatan</p>
+              <p className="text-lg sm:text-xl font-bold text-purple-600">{formatCurrency(stats.totalRevenue)}</p>
             </div>
-            <DollarSign className="w-10 h-10 text-purple-500" />
+            <DollarSign className="w-8 h-8 sm:w-10 sm:h-10 text-purple-500" />
           </div>
         </div>
       </div>
@@ -270,29 +270,29 @@ const RoomManagement = () => {
       {/* Add Room Button */}
       <button
         onClick={() => setShowCreateModal(true)}
-        className="flex items-center space-x-2 px-6 py-3 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition-all shadow-lg hover:shadow-xl"
+        className="w-full sm:w-auto flex items-center justify-center space-x-2 px-6 py-3 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition-all shadow-lg hover:shadow-xl"
       >
         <Plus className="w-5 h-5" />
         <span>Tambah Kamar Baru</span>
       </button>
 
       {/* Rooms Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {rooms.map((room) => (
           <div
             key={room.id}
-            className={`bg-white rounded-2xl border-2 p-6 transition-all hover:shadow-lg ${
+            className={`bg-white rounded-xl sm:rounded-2xl border-2 p-4 sm:p-6 transition-all hover:shadow-lg ${
               room.rentedUserId ? 'border-green-200' : 'border-gray-200'
             }`}
           >
             {/* Room Header */}
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
-                <h3 className="text-xl font-bold text-gray-900 mb-1">{room.name}</h3>
-                <p className="text-2xl font-bold text-purple-600">{formatCurrency(room.price)}</p>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">{room.name}</h3>
+                <p className="text-xl sm:text-2xl font-bold text-purple-600">{formatCurrency(room.price)}</p>
                 <p className="text-xs text-gray-500 mt-1">per bulan</p>
               </div>
-              <div className={`px-3 py-1 rounded-full text-xs font-semibold ${
+              <div className={`px-2 sm:px-3 py-1 rounded-full text-xs font-semibold ${
                 room.rentedUserId
                   ? 'bg-green-100 text-green-700'
                   : 'bg-blue-100 text-blue-700'
@@ -316,7 +316,7 @@ const RoomManagement = () => {
             )}
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-2">
               <button
                 onClick={() => openEditModal(room)}
                 className="flex-1 flex items-center justify-center space-x-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all text-sm font-medium"
@@ -345,9 +345,9 @@ const RoomManagement = () => {
 
               <button
                 onClick={() => handleDeleteRoom(room)}
-                className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all text-sm font-medium"
+                className="sm:flex-initial w-full sm:w-auto px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all text-sm font-medium"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-4 h-4 mx-auto sm:mx-0" />
               </button>
             </div>
           </div>
@@ -363,10 +363,10 @@ const RoomManagement = () => {
 
       {/* Create Room Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full">
-            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-              <h3 className="text-xl font-bold text-gray-900">Tambah Kamar Baru</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white rounded-xl sm:rounded-2xl max-w-md w-full">
+            <div className="p-4 sm:p-6 border-b border-gray-200 flex items-center justify-between">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900">Tambah Kamar Baru</h3>
               <button
                 onClick={() => {
                   setShowCreateModal(false);
@@ -374,12 +374,12 @@ const RoomManagement = () => {
                 }}
                 className="text-gray-400 hover:text-gray-600"
               >
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
             </div>
-            <form onSubmit={handleCreateRoom} className="p-6 space-y-4">
+            <form onSubmit={handleCreateRoom} className="p-4 sm:p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   Nama Kamar <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -387,12 +387,12 @@ const RoomManagement = () => {
                   value={createForm.name}
                   onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })}
                   placeholder="Contoh: Kamar A1"
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-3 text-sm sm:text-base border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   Harga per Bulan (IDR) <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -400,14 +400,14 @@ const RoomManagement = () => {
                   value={createForm.price}
                   onChange={(e) => setCreateForm({ ...createForm, price: handleNumberInput(e.target.value) })}
                   placeholder="1.500.000"
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-3 text-sm sm:text-base border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
                   required
                 />
               </div>
-              <div className="flex space-x-3 pt-4">
+              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 pt-4">
                 <button
                   type="submit"
-                  className="flex-1 bg-purple-600 text-white py-3 rounded-xl font-semibold hover:bg-purple-700 transition-all"
+                  className="w-full sm:flex-1 bg-purple-600 text-white py-3 rounded-xl font-semibold hover:bg-purple-700 transition-all"
                 >
                   Simpan
                 </button>
@@ -417,7 +417,7 @@ const RoomManagement = () => {
                     setShowCreateModal(false);
                     setCreateForm({ name: '', price: '' });
                   }}
-                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all"
+                  className="w-full sm:w-auto px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all"
                 >
                   Batal
                 </button>
@@ -429,10 +429,10 @@ const RoomManagement = () => {
 
       {/* Edit Room Modal */}
       {showEditModal && selectedRoom && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full">
-            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-              <h3 className="text-xl font-bold text-gray-900">Edit Kamar</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white rounded-xl sm:rounded-2xl max-w-md w-full">
+            <div className="p-4 sm:p-6 border-b border-gray-200 flex items-center justify-between">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900">Edit Kamar</h3>
               <button
                 onClick={() => {
                   setShowEditModal(false);
@@ -440,38 +440,38 @@ const RoomManagement = () => {
                 }}
                 className="text-gray-400 hover:text-gray-600"
               >
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
             </div>
-            <form onSubmit={handleEditRoom} className="p-6 space-y-4">
+            <form onSubmit={handleEditRoom} className="p-4 sm:p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   Nama Kamar <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={editForm.name}
                   onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-3 text-sm sm:text-base border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   Harga per Bulan (IDR) <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={editForm.price}
                   onChange={(e) => setEditForm({ ...editForm, price: handleNumberInput(e.target.value) })}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-3 text-sm sm:text-base border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
                   required
                 />
               </div>
-              <div className="flex space-x-3 pt-4">
+              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 pt-4">
                 <button
                   type="submit"
-                  className="flex-1 bg-purple-600 text-white py-3 rounded-xl font-semibold hover:bg-purple-700 transition-all"
+                  className="w-full sm:flex-1 bg-purple-600 text-white py-3 rounded-xl font-semibold hover:bg-purple-700 transition-all"
                 >
                   Update
                 </button>
@@ -481,7 +481,7 @@ const RoomManagement = () => {
                     setShowEditModal(false);
                     setSelectedRoom(null);
                   }}
-                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all"
+                  className="w-full sm:w-auto px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all"
                 >
                   Batal
                 </button>
@@ -493,13 +493,13 @@ const RoomManagement = () => {
 
       {/* Assign User Modal */}
       {showAssignModal && selectedRoom && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-auto">
-            <div className="p-6 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white z-10">
-              <div>
-                <h3 className="text-xl font-bold text-gray-900">Assign User ke {selectedRoom.name}</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white rounded-xl sm:rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-auto">
+            <div className="p-4 sm:p-6 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white z-10">
+              <div className="flex-1 mr-2">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900">Assign User ke {selectedRoom.name}</h3>
                 {selectedUser && (
-                  <p className="text-sm text-green-600 mt-1">
+                  <p className="text-xs sm:text-sm text-green-600 mt-1">
                     Terpilih: {selectedUser.fullName}
                   </p>
                 )}
@@ -512,26 +512,26 @@ const RoomManagement = () => {
                   setUserSearchQuery('');
                   setAssignForm({ rentStartDate: '' });
                 }}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 flex-shrink-0"
               >
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
             </div>
 
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               {/* Search Input */}
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   Cari User <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                   <input
                     type="text"
                     value={userSearchQuery}
                     onChange={(e) => setUserSearchQuery(e.target.value)}
                     placeholder="Cari berdasarkan nama atau email..."
-                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full pl-9 sm:pl-10 pr-4 py-3 text-sm sm:text-base border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
@@ -541,7 +541,7 @@ const RoomManagement = () => {
 
               {/* User List */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-3">
                   Pilih User ({getFilteredUsers().length} tersedia)
                 </label>
 
@@ -587,21 +587,21 @@ const RoomManagement = () => {
               {/* Date Input */}
               <form onSubmit={handleAssignUser} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                     Tanggal Mulai Sewa
                   </label>
                   <input
                     type="date"
                     value={assignForm.rentStartDate}
                     onChange={(e) => setAssignForm({ ...assignForm, rentStartDate: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-3 text-sm sm:text-base border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
-                <div className="flex space-x-3 pt-4">
+                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 pt-4">
                   <button
                     type="submit"
                     disabled={!selectedUser}
-                    className="flex-1 bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full sm:flex-1 bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Assign User
                   </button>
@@ -614,7 +614,7 @@ const RoomManagement = () => {
                       setUserSearchQuery('');
                       setAssignForm({ rentStartDate: '' });
                     }}
-                    className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all"
+                    className="w-full sm:w-auto px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all"
                   >
                     Batal
                   </button>

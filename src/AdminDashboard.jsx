@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Building2, LayoutDashboard, CreditCard, LogOut, DollarSign, Clock, Shield, Home, User, TrendingDown } from 'lucide-react';
+import { Building2, LayoutDashboard, CreditCard, LogOut, DollarSign, Clock, Shield, Home, User, TrendingDown, Menu, X } from 'lucide-react';
 import { useAuth } from './context/AuthContext';
 import authService from './services/authService';
 import NotificationBell from './components/NotificationBell';
@@ -13,6 +13,7 @@ import ExpenseManagement from './components/ExpenseManagement';
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
   const [currentPage, setCurrentPage] = useState('pending');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -83,8 +84,18 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
+      {/* Mobile Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
+      <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 flex flex-col transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}>
         {/* Logo Section */}
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center space-x-3">
@@ -103,74 +114,92 @@ const AdminDashboard = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4">
+        <nav className="flex-1 p-4 overflow-y-auto">
           <div className="space-y-2">
             <button
-              onClick={() => setCurrentPage('pending')}
+              onClick={() => {
+                setCurrentPage('pending');
+                setIsSidebarOpen(false);
+              }}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
                 currentPage === 'pending'
                   ? 'bg-purple-600 text-white'
                   : 'text-gray-700 hover:bg-gray-100'
               }`}
             >
-              <Clock className="w-5 h-5" />
-              <span style={{ fontFamily: '"Inter", sans-serif' }}>Menunggu Persetujuan</span>
+              <Clock className="w-5 h-5 flex-shrink-0" />
+              <span className="text-sm lg:text-base" style={{ fontFamily: '"Inter", sans-serif' }}>Menunggu Persetujuan</span>
             </button>
             <button
-              onClick={() => setCurrentPage('all-payments')}
+              onClick={() => {
+                setCurrentPage('all-payments');
+                setIsSidebarOpen(false);
+              }}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
                 currentPage === 'all-payments'
                   ? 'bg-purple-600 text-white'
                   : 'text-gray-700 hover:bg-gray-100'
               }`}
             >
-              <CreditCard className="w-5 h-5" />
-              <span style={{ fontFamily: '"Inter", sans-serif' }}>Semua Pembayaran</span>
+              <CreditCard className="w-5 h-5 flex-shrink-0" />
+              <span className="text-sm lg:text-base" style={{ fontFamily: '"Inter", sans-serif' }}>Semua Pembayaran</span>
             </button>
             <button
-              onClick={() => setCurrentPage('income')}
+              onClick={() => {
+                setCurrentPage('income');
+                setIsSidebarOpen(false);
+              }}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
                 currentPage === 'income'
                   ? 'bg-purple-600 text-white'
                   : 'text-gray-700 hover:bg-gray-100'
               }`}
             >
-              <DollarSign className="w-5 h-5" />
-              <span style={{ fontFamily: '"Inter", sans-serif' }}>Laporan Pendapatan</span>
+              <DollarSign className="w-5 h-5 flex-shrink-0" />
+              <span className="text-sm lg:text-base" style={{ fontFamily: '"Inter", sans-serif' }}>Laporan Pendapatan</span>
             </button>
             <button
-              onClick={() => setCurrentPage('expenses')}
+              onClick={() => {
+                setCurrentPage('expenses');
+                setIsSidebarOpen(false);
+              }}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
                 currentPage === 'expenses'
                   ? 'bg-purple-600 text-white'
                   : 'text-gray-700 hover:bg-gray-100'
               }`}
             >
-              <TrendingDown className="w-5 h-5" />
-              <span style={{ fontFamily: '"Inter", sans-serif' }}>Pengeluaran</span>
+              <TrendingDown className="w-5 h-5 flex-shrink-0" />
+              <span className="text-sm lg:text-base" style={{ fontFamily: '"Inter", sans-serif' }}>Pengeluaran</span>
             </button>
             <button
-              onClick={() => setCurrentPage('rooms')}
+              onClick={() => {
+                setCurrentPage('rooms');
+                setIsSidebarOpen(false);
+              }}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
                 currentPage === 'rooms'
                   ? 'bg-purple-600 text-white'
                   : 'text-gray-700 hover:bg-gray-100'
               }`}
             >
-              <Home className="w-5 h-5" />
-              <span style={{ fontFamily: '"Inter", sans-serif' }}>Manajemen Kamar</span>
+              <Home className="w-5 h-5 flex-shrink-0" />
+              <span className="text-sm lg:text-base" style={{ fontFamily: '"Inter", sans-serif' }}>Manajemen Kamar</span>
             </button>
 
             <button
-              onClick={() => setCurrentPage('users')}
+              onClick={() => {
+                setCurrentPage('users');
+                setIsSidebarOpen(false);
+              }}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
                 currentPage === 'users'
                   ? 'bg-purple-600 text-white'
                   : 'text-gray-700 hover:bg-gray-100'
               }`}
             >
-              <User className="w-5 h-5" />
-              <span style={{ fontFamily: '"Inter", sans-serif' }}>Manajemen User</span>
+              <User className="w-5 h-5 flex-shrink-0" />
+              <span className="text-sm lg:text-base" style={{ fontFamily: '"Inter", sans-serif' }}>Manajemen User</span>
             </button>
           </div>
         </nav>
@@ -198,22 +227,31 @@ const AdminDashboard = () => {
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-8 py-6">
+        <header className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <div className="flex items-start justify-between">
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-1" style={{ fontFamily: '"DM Sans", sans-serif' }}>
-                {getPageTitle()}
-              </h2>
-              <p className="text-gray-600" style={{ fontFamily: '"Inter", sans-serif' }}>
-                {getPageDescription()}
-              </p>
+            <div className="flex items-center gap-3">
+              {/* Mobile Hamburger Menu */}
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <Menu className="w-6 h-6 text-gray-700" />
+              </button>
+              <div>
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1" style={{ fontFamily: '"DM Sans", sans-serif' }}>
+                  {getPageTitle()}
+                </h2>
+                <p className="text-sm sm:text-base text-gray-600" style={{ fontFamily: '"Inter", sans-serif' }}>
+                  {getPageDescription()}
+                </p>
+              </div>
             </div>
             <NotificationBell />
           </div>
         </header>
 
         {/* Content Area */}
-        <div className="p-8">
+        <div className="p-4 sm:p-6 lg:p-8">
           {renderContent()}
         </div>
       </main>

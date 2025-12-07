@@ -101,123 +101,176 @@ const PendingPayments = () => {
   return (
     <div className="space-y-6">
       {/* Stats Card */}
-      <div className="bg-gradient-to-r from-purple-500 to-purple-700 rounded-2xl p-6 text-white">
+      <div className="bg-gradient-to-r from-purple-500 to-purple-700 rounded-2xl p-4 sm:p-6 text-white">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-purple-100 text-sm mb-1">Total Menunggu Persetujuan</p>
-            <h3 className="text-3xl font-bold">{payments.length}</h3>
+            <p className="text-purple-100 text-xs sm:text-sm mb-1">Total Menunggu Persetujuan</p>
+            <h3 className="text-2xl sm:text-3xl font-bold">{payments.length}</h3>
           </div>
-          <Clock className="w-12 h-12 text-purple-200" />
+          <Clock className="w-8 h-8 sm:w-12 sm:h-12 text-purple-200" />
         </div>
       </div>
 
       {/* Payments List */}
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
         {payments.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
-              <CheckCircle className="w-8 h-8 text-gray-400" />
+          <div className="text-center py-8 sm:py-12">
+            <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 rounded-full mb-4">
+              <CheckCircle className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
             </div>
-            <p className="text-gray-600">Tidak ada pembayaran yang menunggu</p>
+            <p className="text-sm sm:text-base text-gray-600">Tidak ada pembayaran yang menunggu</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    User
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Period
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Amount
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Upload Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Receipt
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {payments.map((payment) => (
-                  <tr key={payment.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        User ID: {payment.userId?.substring(0, 8)}...
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-semibold text-gray-900">
+          <>
+            {/* Mobile Card View */}
+            <div className="md:hidden divide-y divide-gray-200">
+              {payments.map((payment) => (
+                <div key={payment.id} className="p-4 space-y-3">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <p className="text-xs text-gray-500 mb-1">User ID: {payment.userId?.substring(0, 8)}...</p>
+                      <h4 className="text-base font-semibold text-gray-900">
                         {getMonthName(payment.paymentMonth)} {payment.paymentYear}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-bold text-purple-600">
+                      </h4>
+                      <p className="text-lg font-bold text-purple-600 mt-1">
                         {formatCurrency(payment.amount)}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">
-                        {new Date(payment.createdAt).toLocaleDateString('id-ID')}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        onClick={() => viewReceipt(payment)}
-                        className="inline-flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-sm font-medium"
-                      >
-                        <Eye className="w-4 h-4" />
-                        <span>Lihat</span>
-                      </button>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => handleApprove(payment)}
-                          disabled={processingId === payment.id}
-                          className="inline-flex items-center space-x-1 px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <CheckCircle className="w-4 h-4" />
-                          <span>Setujui</span>
-                        </button>
-                        <button
-                          onClick={() => {
-                            setSelectedPayment(payment);
-                            setShowRejectModal(true);
-                          }}
-                          disabled={processingId === payment.id}
-                          className="inline-flex items-center space-x-1 px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <XCircle className="w-4 h-4" />
-                          <span>Tolak</span>
-                        </button>
-                      </div>
-                    </td>
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    Diunggah: {new Date(payment.createdAt).toLocaleDateString('id-ID')}
+                  </div>
+                  <button
+                    onClick={() => viewReceipt(payment)}
+                    className="w-full inline-flex items-center justify-center space-x-1 text-blue-600 hover:text-blue-800 text-sm font-medium py-2 border border-blue-200 rounded-lg hover:bg-blue-50"
+                  >
+                    <Eye className="w-4 h-4" />
+                    <span>Lihat Bukti Pembayaran</span>
+                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleApprove(payment)}
+                      disabled={processingId === payment.id}
+                      className="flex-1 inline-flex items-center justify-center space-x-1 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <CheckCircle className="w-4 h-4" />
+                      <span>Setujui</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedPayment(payment);
+                        setShowRejectModal(true);
+                      }}
+                      disabled={processingId === payment.id}
+                      className="flex-1 inline-flex items-center justify-center space-x-1 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <XCircle className="w-4 h-4" />
+                      <span>Tolak</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      User
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Period
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Amount
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Upload Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Receipt
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {payments.map((payment) => (
+                    <tr key={payment.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                          User ID: {payment.userId?.substring(0, 8)}...
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-semibold text-gray-900">
+                          {getMonthName(payment.paymentMonth)} {payment.paymentYear}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-bold text-purple-600">
+                          {formatCurrency(payment.amount)}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-500">
+                          {new Date(payment.createdAt).toLocaleDateString('id-ID')}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <button
+                          onClick={() => viewReceipt(payment)}
+                          className="inline-flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-sm font-medium"
+                        >
+                          <Eye className="w-4 h-4" />
+                          <span>Lihat</span>
+                        </button>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => handleApprove(payment)}
+                            disabled={processingId === payment.id}
+                            className="inline-flex items-center space-x-1 px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <CheckCircle className="w-4 h-4" />
+                            <span>Setujui</span>
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedPayment(payment);
+                              setShowRejectModal(true);
+                            }}
+                            disabled={processingId === payment.id}
+                            className="inline-flex items-center space-x-1 px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <XCircle className="w-4 h-4" />
+                            <span>Tolak</span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 
       {/* Image Modal */}
       {showImageModal && selectedPayment && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-auto">
-            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white rounded-xl sm:rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-auto">
+            <div className="p-4 sm:p-6 border-b border-gray-200 flex items-center justify-between">
               <div>
-                <h3 className="text-xl font-bold text-gray-900">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900">
                   Bukti Pembayaran
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-xs sm:text-sm text-gray-600 mt-1">
                   {getMonthName(selectedPayment.paymentMonth)} {selectedPayment.paymentYear} - {formatCurrency(selectedPayment.amount)}
                 </p>
               </div>
@@ -228,10 +281,10 @@ const PendingPayments = () => {
                 }}
                 className="text-gray-400 hover:text-gray-600"
               >
-                <XCircle className="w-6 h-6" />
+                <XCircle className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
             </div>
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <img
                 src={`http://localhost:3000/api/payments/receipt/${selectedPayment.id}/image`}
                 alt="Payment Receipt"
@@ -248,15 +301,15 @@ const PendingPayments = () => {
       {/* Reject Modal */}
       {showRejectModal && selectedPayment && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-xl font-bold text-gray-900">Tolak Pembayaran</h3>
-              <p className="text-sm text-gray-600 mt-1">
+          <div className="bg-white rounded-xl sm:rounded-2xl max-w-md w-full">
+            <div className="p-4 sm:p-6 border-b border-gray-200">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900">Tolak Pembayaran</h3>
+              <p className="text-xs sm:text-sm text-gray-600 mt-1">
                 {getMonthName(selectedPayment.paymentMonth)} {selectedPayment.paymentYear}
               </p>
             </div>
-            <div className="p-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="p-4 sm:p-6">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                 Alasan Penolakan <span className="text-red-500">*</span>
               </label>
               <textarea
@@ -264,14 +317,14 @@ const PendingPayments = () => {
                 onChange={(e) => setRejectionReason(e.target.value)}
                 placeholder="Contoh: Jumlah pembayaran tidak sesuai dengan harga sewa"
                 rows={4}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 resize-none text-sm"
               />
             </div>
-            <div className="p-6 border-t border-gray-200 flex space-x-3">
+            <div className="p-4 sm:p-6 border-t border-gray-200 flex flex-col sm:flex-row gap-3">
               <button
                 onClick={handleReject}
                 disabled={processingId === selectedPayment.id || !rejectionReason.trim()}
-                className="flex-1 bg-red-600 text-white py-3 rounded-xl font-semibold hover:bg-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 bg-red-600 text-white py-2.5 sm:py-3 rounded-xl font-semibold hover:bg-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
               >
                 {processingId === selectedPayment.id ? 'Memproses...' : 'Tolak Pembayaran'}
               </button>
@@ -281,7 +334,7 @@ const PendingPayments = () => {
                   setSelectedPayment(null);
                   setRejectionReason('');
                 }}
-                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all"
+                className="px-6 py-2.5 sm:py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all text-sm sm:text-base"
               >
                 Batal
               </button>

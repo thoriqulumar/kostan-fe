@@ -87,10 +87,10 @@ const NotificationBell = () => {
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-200 z-50">
+        <div className="fixed sm:absolute right-0 left-0 sm:left-auto sm:right-0 top-0 sm:top-auto sm:mt-2 w-full sm:w-96 h-full sm:h-auto bg-white sm:rounded-2xl shadow-2xl border-0 sm:border border-gray-200 z-50 flex flex-col sm:block">
           {/* Header */}
-          <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
-            <h3 className="text-lg font-bold text-gray-900">Notifikasi</h3>
+          <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between bg-white sm:rounded-t-2xl">
+            <h3 className="text-base sm:text-lg font-bold text-gray-900">Notifikasi</h3>
             <div className="flex items-center space-x-2">
               {notifications.length > 0 && (
                 <>
@@ -100,7 +100,7 @@ const NotificationBell = () => {
                     title="Tandai semua sudah dibaca"
                   >
                     <CheckCheck className="w-4 h-4" />
-                    <span>Tandai dibaca</span>
+                    <span className="hidden sm:inline">Tandai dibaca</span>
                   </button>
                   <button
                     onClick={clearAllNotifications}
@@ -111,15 +111,21 @@ const NotificationBell = () => {
                   </button>
                 </>
               )}
+              <button
+                onClick={() => setIsOpen(false)}
+                className="sm:hidden text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
           </div>
 
           {/* Notification List */}
-          <div className="max-h-96 overflow-y-auto">
+          <div className="flex-1 sm:max-h-96 overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="px-4 py-12 text-center">
-                <Bell className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500 text-sm">Tidak ada notifikasi</p>
+              <div className="px-4 py-8 sm:py-12 text-center">
+                <Bell className="w-10 h-10 sm:w-12 sm:h-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-500 text-xs sm:text-sm">Tidak ada notifikasi</p>
               </div>
             ) : (
               <div className="divide-y divide-gray-100">
@@ -132,16 +138,16 @@ const NotificationBell = () => {
                     }`}
                   >
                     <div className="flex items-start space-x-3">
-                      <div className="text-2xl flex-shrink-0">
+                      <div className="text-xl sm:text-2xl flex-shrink-0">
                         {getNotificationIcon(notification.type)}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <p className="text-sm font-semibold text-gray-900 mb-1">
+                            <p className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">
                               {notification.title}
                             </p>
-                            <p className="text-sm text-gray-600 line-clamp-2">
+                            <p className="text-xs sm:text-sm text-gray-600 line-clamp-2">
                               {notification.message}
                             </p>
                             <p className="text-xs text-gray-400 mt-1">

@@ -205,8 +205,8 @@ const PaymentPage = () => {
 
       {/* Upload Form */}
       {showUploadForm && (
-        <div className="bg-white rounded-2xl border border-gray-200 p-6">
-          <h3 className="text-xl font-bold text-gray-900 mb-4" style={{ fontFamily: '"DM Sans", sans-serif' }}>
+        <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6">
+          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4" style={{ fontFamily: '"DM Sans", sans-serif' }}>
             Upload Bukti Pembayaran
           </h3>
 
@@ -224,7 +224,7 @@ const PaymentPage = () => {
               />
               {previewUrl && (
                 <div className="mt-3">
-                  <img src={previewUrl} alt="Preview" className="max-w-xs h-auto rounded-lg border border-gray-200" />
+                  <img src={previewUrl} alt="Preview" className="w-full sm:max-w-xs h-auto rounded-lg border border-gray-200" />
                 </div>
               )}
             </div>
@@ -283,7 +283,7 @@ const PaymentPage = () => {
             </div>
 
             {/* Buttons */}
-            <div className="flex space-x-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 type="submit"
                 disabled={uploading}
@@ -308,45 +308,45 @@ const PaymentPage = () => {
       )}
 
       {/* Payment History */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-6">
-        <h3 className="text-xl font-bold text-gray-900 mb-4" style={{ fontFamily: '"DM Sans", sans-serif' }}>
+      <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6">
+        <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4" style={{ fontFamily: '"DM Sans", sans-serif' }}>
           Riwayat Pembayaran
         </h3>
 
         {payments.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
-              <CreditCard className="w-8 h-8 text-gray-400" />
+          <div className="text-center py-8 sm:py-12">
+            <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 rounded-full mb-4">
+              <CreditCard className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
             </div>
-            <p className="text-gray-600">Belum ada pembayaran</p>
+            <p className="text-sm sm:text-base text-gray-600">Belum ada pembayaran</p>
           </div>
         ) : (
           <div className="space-y-3">
             {payments.map((payment) => (
               <div
                 key={payment.id}
-                className="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-200"
+                className="border border-gray-200 rounded-xl p-3 sm:p-4 hover:shadow-md transition-all duration-200"
               >
-                <div className="flex items-start justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                   <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900 mb-1">
+                    <h4 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">
                       {getMonthName(payment.paymentMonth)} {payment.paymentYear}
                     </h4>
-                    <p className="text-lg font-bold text-blue-600 mb-2">
+                    <p className="text-base sm:text-lg font-bold text-blue-600 mb-2">
                       {formatCurrency(payment.amount)}
                     </p>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-xs sm:text-sm text-gray-500">
                       Diunggah: {new Date(payment.createdAt).toLocaleDateString('id-ID')}
                     </div>
                   </div>
-                  <div>
+                  <div className="self-start">
                     {getStatusBadge(payment.status)}
                   </div>
                 </div>
 
                 {payment.status === 'rejected' && payment.rejectionReason && (
-                  <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-sm text-red-700">
+                  <div className="mt-3 p-2 sm:p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-xs sm:text-sm text-red-700">
                       <strong>Alasan penolakan:</strong> {payment.rejectionReason}
                     </p>
                   </div>
