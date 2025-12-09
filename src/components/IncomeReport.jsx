@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { DollarSign, TrendingUp, Calendar, Download, BarChart3, TrendingDown, Wallet } from 'lucide-react';
+import { DollarSign, TrendingUp, Calendar, Download, BarChart3, TrendingDown, Wallet, FileText } from 'lucide-react';
 import paymentService from '../services/paymentService';
 import expenseService from '../services/expenseService';
 import toast from 'react-hot-toast';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const IncomeReport = () => {
   const [summary, setSummary] = useState(null);
@@ -109,35 +111,112 @@ const IncomeReport = () => {
   const monthlyData = getMonthlyData();
   const maxValue = Math.max(...monthlyData.map((m) => Math.max(m.income, m.expenses)), 1);
 
-  const exportToCSV = () => {
-    if (!report || report.length === 0) {
+  const exportToPDF = () => {
+    if ((!report || report.length === 0) && (!expenses || expenses.length === 0)) {
       toast.error('Tidak ada data untuk diekspor');
       return;
     }
 
-    const headers = ['Tanggal', 'Bulan', 'Tahun', 'Jumlah', 'User ID', 'Room ID', 'Deskripsi'];
-    const rows = report.map((item) => [
-      new Date(item.createdAt).toLocaleDateString('id-ID'),
-      getMonthName(item.paymentMonth),
-      item.paymentYear,
-      item.amount,
-      item.user.fullName,
-      item.room.name,
-      item.description || '-',
-    ]);
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
 
-    const csvContent = [
-      headers.join(','),
-      ...rows.map((row) => row.join(',')),
-    ].join('\n');
+    // Title
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Laporan Keuangan Kostan', pageWidth / 2, 15, { align: 'center' });
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `laporan-pendapatan-${selectedYear}.csv`;
-    link.click();
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Tahun ${selectedYear}`, pageWidth / 2, 22, { align: 'center' });
 
-    toast.success('Laporan berhasil diekspor');
+    // Summary Section
+    doc.setFontSize(10);
+    const startY = 30;
+    doc.text(`Total Pendapatan: Rp ${formatCurrency(summary?.totalIncome || 0).replace('Rp', '').trim()}`, 14, startY);
+    doc.text(`Total Pengeluaran: Rp ${formatCurrency(calculateTotalExpenses()).replace('Rp', '').trim()}`, 14, startY + 6);
+    doc.text(`Laba Bersih: Rp ${formatCurrency(calculateNetProfit()).replace('Rp', '').trim()}`, 14, startY + 12);
+
+    let currentY = startY + 22;
+
+    // Income Table
+    if (report && report.length > 0) {
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Pendapatan', 14, currentY);
+      currentY += 7;
+
+      const incomeHeaders = ['Tanggal', 'Periode', 'Jumlah', 'User', 'Kamar', 'Keterangan'];
+      const incomeData = report.map((item) => [
+        new Date(item.createdAt).toLocaleDateString('id-ID'),
+        `${getMonthName(item.paymentMonth)} ${item.paymentYear}`,
+        `Rp ${item.amount.toLocaleString('id-ID')}`,
+        item.user?.fullName || '-',
+        item.room?.name || '-',
+        item.description || '-',
+      ]);
+
+      autoTable(doc, {
+        head: [incomeHeaders],
+        body: incomeData,
+        startY: currentY,
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: [147, 51, 234], textColor: 255 },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
+        margin: { left: 14, right: 14 },
+      });
+
+      currentY = doc.lastAutoTable.finalY + 10;
+    }
+
+    // Expenses Table
+    if (expenses && expenses.length > 0) {
+      // Check if we need a new page
+      if (currentY > 250) {
+        doc.addPage();
+        currentY = 20;
+      }
+
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Pengeluaran', 14, currentY);
+      currentY += 7;
+
+      const expenseHeaders = ['Tanggal', 'Periode', 'Jumlah', 'Kategori', 'Keterangan'];
+      const expenseData = expenses.map((item) => [
+        new Date(item.createdAt).toLocaleDateString('id-ID'),
+        `${getMonthName(item.expenseMonth)} ${item.expenseYear}`,
+        `Rp ${parseFloat(item.amount).toLocaleString('id-ID')}`,
+        item.category || '-',
+        item.description || '-',
+      ]);
+
+      autoTable(doc, {
+        head: [expenseHeaders],
+        body: expenseData,
+        startY: currentY,
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: [239, 68, 68], textColor: 255 },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
+        margin: { left: 14, right: 14 },
+      });
+    }
+
+    // Footer
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.text(
+        `Halaman ${i} dari ${pageCount} - Dicetak: ${new Date().toLocaleDateString('id-ID')}`,
+        pageWidth / 2,
+        doc.internal.pageSize.getHeight() - 10,
+        { align: 'center' }
+      );
+    }
+
+    doc.save(`laporan-keuangan-${selectedYear}.pdf`);
+    toast.success('Laporan PDF berhasil diekspor');
   };
 
   if (loading) {
@@ -173,11 +252,11 @@ const IncomeReport = () => {
           </select>
         </div>
         <button
-          onClick={exportToCSV}
+          onClick={exportToPDF}
           className="w-full sm:w-auto flex items-center justify-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all font-medium"
         >
-          <Download className="w-4 h-4" />
-          <span>Export CSV</span>
+          <FileText className="w-4 h-4" />
+          <span>Export PDF</span>
         </button>
       </div>
 
@@ -348,15 +427,15 @@ const IncomeReport = () => {
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">User ID</p>
+                      <p className="text-xs text-gray-500">Nama User</p>
                       <p className="text-sm text-gray-600">
-                        {item.userId?.substring(0, 8)}...
+                        {item.user?.fullName || '-'}
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">Room ID</p>
+                      <p className="text-xs text-gray-500">Nama Kamar</p>
                       <p className="text-sm text-gray-600">
-                        {item.roomId?.substring(0, 8)}...
+                        {item.room?.name || '-'}
                       </p>
                     </div>
                     {item.description && (
@@ -385,10 +464,10 @@ const IncomeReport = () => {
                     Jumlah
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    User ID
+                    Nama User
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Room ID
+                    Nama Kamar
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Deskripsi
@@ -414,13 +493,13 @@ const IncomeReport = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">
-                        {item.userId?.substring(0, 8)}...
+                      <div className="text-sm text-gray-900 font-medium">
+                        {item.user?.fullName || '-'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">
-                        {item.roomId?.substring(0, 8)}...
+                      <div className="text-sm text-gray-900 font-medium">
+                        {item.room?.name || '-'}
                       </div>
                     </td>
                     <td className="px-6 py-4">

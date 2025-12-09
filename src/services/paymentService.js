@@ -2,13 +2,16 @@ import api from "./api";
 
 const paymentService = {
   // Upload payment receipt
-  uploadReceipt: async (file, paymentMonth, paymentYear, amount) => {
+  uploadReceipt: async (file, paymentMonth, paymentYear, amount, description) => {
     try {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("paymentMonth", paymentMonth);
       formData.append("paymentYear", paymentYear);
       formData.append("amount", amount);
+      if (description) {
+        formData.append("description", description);
+      }
 
       const response = await api.post("/payments/upload-receipt", formData, {
         headers: {

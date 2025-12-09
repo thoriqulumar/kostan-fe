@@ -135,6 +135,11 @@ const PendingPayments = () => {
                       <p className="text-lg font-bold text-purple-600 mt-1">
                         {formatCurrency(payment.amount)}
                       </p>
+                      {payment.description && (
+                        <p className="text-sm text-gray-600 mt-2 italic">
+                          {payment.description}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="text-xs text-gray-500">
@@ -187,6 +192,9 @@ const PendingPayments = () => {
                       Amount
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Description
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Upload Date
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -213,6 +221,11 @@ const PendingPayments = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-bold text-purple-600">
                           {formatCurrency(payment.amount)}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 max-w-xs">
+                        <div className="text-sm text-gray-600 italic truncate">
+                          {payment.description || '-'}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">

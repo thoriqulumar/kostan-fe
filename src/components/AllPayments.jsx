@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { CheckCircle, XCircle, Clock, Eye, Filter, Search } from "lucide-react";
+import { CheckCircle, XCircle, Clock, Eye, Filter, Search, Trash2 } from "lucide-react";
 import paymentService from "../services/paymentService";
 import toast from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
 
 const AllPayments = () => {
+  const { user } = useAuth();
   const [payments, setPayments] = useState([]);
   const [filteredPayments, setFilteredPayments] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -11,6 +13,7 @@ const AllPayments = () => {
   const [showImageModal, setShowImageModal] = useState(false);
   const [imageUrl, setImageUrl] = useState(null);
   const [loadingImage, setLoadingImage] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
 
   // Filters
   const [statusFilter, setStatusFilter] = useState("all");
@@ -87,14 +90,33 @@ const AllPayments = () => {
       filtered = filtered.filter((p) => p.paymentYear === parseInt(yearFilter));
     }
 
-    // Search query (by user ID)
+    // Search query (by user name or user ID)
     if (searchQuery.trim()) {
       filtered = filtered.filter((p) =>
+        p.user?.fullName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.userId?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     setFilteredPayments(filtered);
+  };
+
+  const handleDeletePayment = async (paymentId) => {
+    if (!window.confirm("Apakah Anda yakin ingin menghapus pembayaran ini?")) {
+      return;
+    }
+
+    try {
+      setDeletingId(paymentId);
+      await paymentService.deleteReceipt(paymentId);
+      toast.success("Pembayaran berhasil dihapus");
+      fetchAllPayments(); // Refresh the list
+    } catch (err) {
+      console.error("Failed to delete payment:", err);
+      toast.error(err.message || "Gagal menghapus pembayaran");
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   const viewReceipt = (payment) => {
@@ -230,7 +252,7 @@ const AllPayments = () => {
           {/* Search */}
           <div>
             <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-              Cari User ID
+              Cari Nama User
             </label>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
@@ -238,7 +260,7 @@ const AllPayments = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Cari ID pengguna..."
+                placeholder="Cari nama pengguna..."
                 className="w-full pl-9 sm:pl-10 pr-4 py-2 text-sm sm:text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
             </div>
@@ -315,10 +337,15 @@ const AllPayments = () => {
                 <div key={payment.id} className="p-4 hover:bg-gray-50 transition-colors">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
-                      <p className="text-xs text-gray-500 mb-1">User ID</p>
+                      <p className="text-xs text-gray-500 mb-1">Nama User</p>
                       <p className="text-sm font-medium text-gray-900 mb-2">
-                        {payment.userId?.substring(0, 8)}...
+                        {payment.user?.fullName || '-'}
                       </p>
+                      {payment.room && (
+                        <p className="text-xs text-gray-500">
+                          Kamar: {payment.room.name}
+                        </p>
+                      )}
                     </div>
                     {getStatusBadge(payment.status)}
                   </div>
@@ -344,13 +371,24 @@ const AllPayments = () => {
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => viewReceipt(payment)}
-                    className="w-full inline-flex items-center justify-center space-x-1 text-blue-600 hover:text-blue-800 text-sm font-medium py-2 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors"
-                  >
-                    <Eye className="w-4 h-4" />
-                    <span>Lihat Bukti</span>
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => viewReceipt(payment)}
+                      className="flex-1 inline-flex items-center justify-center space-x-1 text-blue-600 hover:text-blue-800 text-sm font-medium py-2 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors"
+                    >
+                      <Eye className="w-4 h-4" />
+                      <span>Lihat Bukti</span>
+                    </button>
+                    {user?.role === 'admin' && (
+                      <button
+                        onClick={() => handleDeletePayment(payment.id)}
+                        disabled={deletingId === payment.id}
+                        className="px-3 py-2 text-red-600 hover:text-red-800 border border-red-200 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -361,7 +399,10 @@ const AllPayments = () => {
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    User
+                    Nama User
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Kamar
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Period
@@ -376,7 +417,7 @@ const AllPayments = () => {
                     Date
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Receipt
+                    Actions
                   </th>
                 </tr>
               </thead>
@@ -388,7 +429,12 @@ const AllPayments = () => {
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
-                        {payment.userId?.substring(0, 8)}...
+                        {payment.user?.fullName || '-'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">
+                        {payment.room?.name || '-'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -413,13 +459,25 @@ const AllPayments = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        onClick={() => viewReceipt(payment)}
-                        className="inline-flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-sm font-medium"
-                      >
-                        <Eye className="w-4 h-4" />
-                        <span>Lihat</span>
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => viewReceipt(payment)}
+                          className="inline-flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-sm font-medium"
+                        >
+                          <Eye className="w-4 h-4" />
+                          <span>Lihat</span>
+                        </button>
+                        {user?.role === 'admin' && (
+                          <button
+                            onClick={() => handleDeletePayment(payment.id)}
+                            disabled={deletingId === payment.id}
+                            className="inline-flex items-center space-x-1 text-red-600 hover:text-red-800 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            <span>Hapus</span>
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}

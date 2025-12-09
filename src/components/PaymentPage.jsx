@@ -16,6 +16,7 @@ const PaymentPage = () => {
     paymentMonth: new Date().getMonth() + 1,
     paymentYear: new Date().getFullYear(),
     amount: '',
+    description: '',
   });
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState('');
@@ -97,7 +98,8 @@ const PaymentPage = () => {
         uploadForm.file,
         parseInt(uploadForm.paymentMonth),
         parseInt(uploadForm.paymentYear),
-        parsedAmount
+        parsedAmount,
+        uploadForm.description
       );
 
       setSuccess('Bukti pembayaran berhasil diunggah! Menunggu konfirmasi admin.');
@@ -108,6 +110,7 @@ const PaymentPage = () => {
         paymentMonth: new Date().getMonth() + 1,
         paymentYear: new Date().getFullYear(),
         amount: '',
+        description: '',
       });
       setPreviewUrl('');
       setShowUploadForm(false);
@@ -282,6 +285,21 @@ const PaymentPage = () => {
               />
             </div>
 
+            {/* Description */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Keterangan (Opsional)
+              </label>
+              <textarea
+                name="description"
+                value={uploadForm.description}
+                onChange={handleUploadFormChange}
+                placeholder="Tambahkan catatan atau keterangan untuk pembayaran ini..."
+                rows="3"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              />
+            </div>
+
             {/* Buttons */}
             <div className="flex flex-col sm:flex-row gap-3">
               <button
@@ -335,6 +353,11 @@ const PaymentPage = () => {
                     <p className="text-base sm:text-lg font-bold text-blue-600 mb-2">
                       {formatCurrency(payment.amount)}
                     </p>
+                    {payment.description && (
+                      <p className="text-xs sm:text-sm text-gray-600 mb-2 italic">
+                        {payment.description}
+                      </p>
+                    )}
                     <div className="text-xs sm:text-sm text-gray-500">
                       Diunggah: {new Date(payment.createdAt).toLocaleDateString('id-ID')}
                     </div>
