@@ -13,6 +13,7 @@ const NotificationBell = () => {
   } = useNotifications();
 
   const [isOpen, setIsOpen] = useState(false);
+  const [expandedNotifications, setExpandedNotifications] = useState(new Set());
   const dropdownRef = useRef(null);
 
   // Close dropdown when clicking outside
@@ -36,6 +37,19 @@ const NotificationBell = () => {
     if (!notification.read) {
       markAsRead(notification.id);
     }
+  };
+
+  const toggleExpanded = (notificationId, e) => {
+    e.stopPropagation();
+    setExpandedNotifications(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(notificationId)) {
+        newSet.delete(notificationId);
+      } else {
+        newSet.add(notificationId);
+      }
+      return newSet;
+    });
   };
 
   const getNotificationIcon = (type) => {
@@ -129,48 +143,66 @@ const NotificationBell = () => {
               </div>
             ) : (
               <div className="divide-y divide-gray-100">
-                {notifications.map((notification) => (
-                  <div
-                    key={notification.id}
-                    onClick={() => handleNotificationClick(notification)}
-                    className={`px-4 py-3 hover:bg-gray-50 transition-all duration-200 cursor-pointer ${
-                      !notification.read ? 'bg-blue-50' : ''
-                    }`}
-                  >
-                    <div className="flex items-start space-x-3">
-                      <div className="text-xl sm:text-2xl flex-shrink-0">
-                        {getNotificationIcon(notification.type)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <p className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">
-                              {notification.title}
-                            </p>
-                            <p className="text-xs sm:text-sm text-gray-600 line-clamp-2">
-                              {notification.message}
-                            </p>
-                            <p className="text-xs text-gray-400 mt-1">
-                              {formatTimestamp(notification.timestamp)}
-                            </p>
-                          </div>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              clearNotification(notification.id);
-                            }}
-                            className="ml-2 text-gray-400 hover:text-gray-600"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
+                {notifications.map((notification) => {
+                  const isExpanded = expandedNotifications.has(notification.id);
+                  const messageLength = notification.message?.length || 0;
+                  const shouldShowExpand = messageLength > 100;
+
+                  return (
+                    <div
+                      key={notification.id}
+                      onClick={() => handleNotificationClick(notification)}
+                      className={`px-4 py-3 hover:bg-gray-50 transition-all duration-200 cursor-pointer ${
+                        !notification.read ? 'bg-blue-50' : ''
+                      }`}
+                    >
+                      <div className="flex items-start space-x-3">
+                        <div className="text-xl sm:text-2xl flex-shrink-0">
+                          {getNotificationIcon(notification.type)}
                         </div>
-                        {!notification.read && (
-                          <div className="w-2 h-2 bg-blue-600 rounded-full mt-1"></div>
-                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <p className="text-xs sm:text-sm font-semibold text-gray-900 mb-1">
+                                {notification.title}
+                              </p>
+                              <div
+                                className={`text-xs sm:text-sm text-gray-600 ${
+                                  isExpanded ? '' : 'line-clamp-2'
+                                }`}
+                              >
+                                {notification.message}
+                              </div>
+                              {shouldShowExpand && (
+                                <button
+                                  onClick={(e) => toggleExpanded(notification.id, e)}
+                                  className="text-xs text-blue-600 hover:text-blue-800 font-medium mt-1"
+                                >
+                                  {isExpanded ? 'Lihat lebih sedikit' : 'Lihat selengkapnya'}
+                                </button>
+                              )}
+                              <p className="text-xs text-gray-400 mt-1">
+                                {formatTimestamp(notification.timestamp)}
+                              </p>
+                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                clearNotification(notification.id);
+                              }}
+                              className="ml-2 text-gray-400 hover:text-gray-600 flex-shrink-0"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                          {!notification.read && (
+                            <div className="w-2 h-2 bg-blue-600 rounded-full mt-1"></div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

@@ -153,7 +153,7 @@ const Dashboard = () => {
                 </h2>
                 <p className="text-sm sm:text-base text-gray-600" style={{ fontFamily: '"Inter", sans-serif' }}>
                   {currentPage === 'dashboard'
-                    ? `Selamat datang, ${user.fullName?.split(' ')[0] || 'thor'}`
+                    ? <>Selamat datang, <strong>{user.fullName}</strong></>
                     : 'Kelola pembayaran sewa kamar Anda'
                   }
                 </p>

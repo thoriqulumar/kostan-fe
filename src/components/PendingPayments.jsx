@@ -11,10 +11,25 @@ const PendingPayments = () => {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
   const [processingId, setProcessingId] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null);
+  const [loadingImage, setLoadingImage] = useState(false);
 
   useEffect(() => {
     fetchPendingPayments();
   }, []);
+
+  useEffect(() => {
+    if (selectedPayment?.id) {
+      fetchImagePaymentReceipt(selectedPayment.id);
+    }
+
+    // Cleanup function to revoke object URL when component unmounts or selectedPayment changes
+    return () => {
+      if (imageUrl) {
+        URL.revokeObjectURL(imageUrl);
+      }
+    };
+  }, [selectedPayment]);
 
   const fetchPendingPayments = async () => {
     try {
@@ -26,6 +41,21 @@ const PendingPayments = () => {
       toast.error('Gagal memuat data pembayaran');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchImagePaymentReceipt = async (paymentId) => {
+    if (!paymentId) return;
+    try {
+      setLoadingImage(true);
+      const blob = await paymentService.getReceiptImage(paymentId);
+      const url = URL.createObjectURL(blob);
+      setImageUrl(url);
+    } catch (err) {
+      console.error('Failed to load image:', err);
+      setImageUrl(null);
+    } finally {
+      setLoadingImage(false);
     }
   };
 
@@ -128,7 +158,15 @@ const PendingPayments = () => {
                 <div key={payment.id} className="p-4 space-y-3">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      <p className="text-xs text-gray-500 mb-1">User ID: {payment.userId?.substring(0, 8)}...</p>
+                      <p className="text-xs text-gray-500 mb-1">Nama User</p>
+                      <p className="text-sm font-medium text-gray-900 mb-2">
+                        {payment.user?.fullName || '-'}
+                      </p>
+                      {payment.room && (
+                        <p className="text-xs text-gray-500 mb-2">
+                          Kamar: {payment.room.name}
+                        </p>
+                      )}
                       <h4 className="text-base font-semibold text-gray-900">
                         {getMonthName(payment.paymentMonth)} {payment.paymentYear}
                       </h4>
@@ -183,7 +221,10 @@ const PendingPayments = () => {
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      User
+                      Nama User
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Kamar
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Period
@@ -210,7 +251,12 @@ const PendingPayments = () => {
                     <tr key={payment.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
-                          User ID: {payment.userId?.substring(0, 8)}...
+                          {payment.user?.fullName || '-'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {payment.room?.name || '-'}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -291,6 +337,7 @@ const PendingPayments = () => {
                 onClick={() => {
                   setShowImageModal(false);
                   setSelectedPayment(null);
+                  setImageUrl(null);
                 }}
                 className="text-gray-400 hover:text-gray-600"
               >
@@ -298,14 +345,20 @@ const PendingPayments = () => {
               </button>
             </div>
             <div className="p-4 sm:p-6">
-              <img
-                src={`http://localhost:3000/api/payments/receipt/${selectedPayment.id}/image`}
-                alt="Payment Receipt"
-                className="w-full h-auto rounded-lg border border-gray-200"
-                onError={(e) => {
-                  e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23f3f4f6" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="%239ca3af" font-size="16"%3EGambar tidak dapat dimuat%3C/text%3E%3C/svg%3E';
-                }}
-              />
+              {loadingImage ? (
+                <div className="flex items-center justify-center h-64">
+                  <div className="text-sm sm:text-base text-gray-600">Memuat gambar...</div>
+                </div>
+              ) : (
+                <img
+                  src={
+                    imageUrl ||
+                    'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23f3f4f6" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="%239ca3af" font-size="16"%3EGambar tidak dapat dimuat%3C/text%3E%3C/svg%3E'
+                  }
+                  alt="Payment Receipt"
+                  className="w-full h-auto rounded-lg border border-gray-200"
+                />
+              )}
             </div>
           </div>
         </div>
