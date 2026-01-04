@@ -1,9 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Plus, Edit, Trash2, Users, DollarSign, X, Check, UserPlus, UserMinus, Search } from 'lucide-react';
+import {
+  Home,
+  Plus,
+  Edit,
+  Trash2,
+  Users,
+  DollarSign,
+  X,
+  Check,
+  UserPlus,
+  UserMinus,
+  Search,
+  CheckCircle,
+  AlertCircle,
+} from 'lucide-react';
 import roomService from '../services/roomService';
 import userService from '../services/userService';
 import toast from 'react-hot-toast';
-import { formatNumber, parseFormattedNumber, handleNumberInput } from '../utils/numberFormat';
+import {
+  formatNumber,
+  parseFormattedNumber,
+  handleNumberInput,
+} from '../utils/numberFormat';
 
 const RoomManagement = () => {
   const [rooms, setRooms] = useState([]);
@@ -19,6 +37,12 @@ const RoomManagement = () => {
   const [userSearchQuery, setUserSearchQuery] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
 
+  // Search and filter states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all'); // all, rented, empty, paid, unpaid
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // 1-12
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+
   // Form states
   const [createForm, setCreateForm] = useState({ name: '', price: '' });
   const [editForm, setEditForm] = useState({ name: '', price: '' });
@@ -28,10 +52,23 @@ const RoomManagement = () => {
     fetchRooms();
   }, []);
 
+  useEffect(() => {
+    if (
+      rooms.length > 0 ||
+      selectedMonth !== new Date().getMonth() + 1 ||
+      selectedYear !== new Date().getFullYear()
+    ) {
+      fetchRooms();
+    }
+  }, [selectedMonth, selectedYear]);
+
   const fetchRooms = async () => {
     try {
       setLoading(true);
-      const data = await roomService.getAllRooms();
+      const data = await roomService.getRoomsWithPaymentStatus(
+        selectedMonth,
+        selectedYear
+      );
       setRooms(data);
     } catch (err) {
       console.error('Failed to fetch rooms:', err);
@@ -204,6 +241,80 @@ const RoomManagement = () => {
     }).format(amount);
   };
 
+  const getMonthName = (month) => {
+    const months = [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ];
+    return months[month - 1];
+  };
+
+  const resetToCurrentMonth = () => {
+    const currentDate = new Date();
+    setSelectedMonth(currentDate.getMonth() + 1);
+    setSelectedYear(currentDate.getFullYear());
+  };
+
+  const isCurrentMonth = () => {
+    const currentDate = new Date();
+    return (
+      selectedMonth === currentDate.getMonth() + 1 &&
+      selectedYear === currentDate.getFullYear()
+    );
+  };
+
+  const getFilteredRooms = () => {
+    let filtered = rooms;
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (room) =>
+          room.name.toLowerCase().includes(query) ||
+          (room.rentedUser &&
+            room.rentedUser.fullName.toLowerCase().includes(query)) ||
+          (room.rentedUser &&
+            room.rentedUser.email.toLowerCase().includes(query))
+      );
+    }
+
+    // Apply status filter
+    switch (filterStatus) {
+      case 'rented':
+        filtered = filtered.filter((room) => room.rentedUserId);
+        break;
+      case 'empty':
+        filtered = filtered.filter((room) => !room.rentedUserId);
+        break;
+      case 'paid':
+        filtered = filtered.filter(
+          (room) => room.rentedUserId && room.isPaidThisMonth
+        );
+        break;
+      case 'unpaid':
+        filtered = filtered.filter(
+          (room) => room.rentedUserId && !room.isPaidThisMonth
+        );
+        break;
+      default:
+        // 'all' - no additional filtering
+        break;
+    }
+
+    return filtered;
+  };
+
   const getStats = () => {
     const total = rooms.length;
     const rented = rooms.filter((r) => r.rentedUserId).length;
@@ -232,8 +343,12 @@ const RoomManagement = () => {
         <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs sm:text-sm text-gray-600 mb-1">Total Kamar</p>
-              <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.total}</p>
+              <p className="text-xs sm:text-sm text-gray-600 mb-1">
+                Total Kamar
+              </p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900">
+                {stats.total}
+              </p>
             </div>
             <Home className="w-8 h-8 sm:w-10 sm:h-10 text-purple-500" />
           </div>
@@ -241,8 +356,12 @@ const RoomManagement = () => {
         <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs sm:text-sm text-gray-600 mb-1">Kamar Tersewa</p>
-              <p className="text-xl sm:text-2xl font-bold text-green-600">{stats.rented}</p>
+              <p className="text-xs sm:text-sm text-gray-600 mb-1">
+                Kamar Tersewa
+              </p>
+              <p className="text-xl sm:text-2xl font-bold text-green-600">
+                {stats.rented}
+              </p>
             </div>
             <Users className="w-8 h-8 sm:w-10 sm:h-10 text-green-500" />
           </div>
@@ -250,8 +369,12 @@ const RoomManagement = () => {
         <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs sm:text-sm text-gray-600 mb-1">Kamar Kosong</p>
-              <p className="text-xl sm:text-2xl font-bold text-blue-600">{stats.available}</p>
+              <p className="text-xs sm:text-sm text-gray-600 mb-1">
+                Kamar Kosong
+              </p>
+              <p className="text-xl sm:text-2xl font-bold text-blue-600">
+                {stats.available}
+              </p>
             </div>
             <Home className="w-8 h-8 sm:w-10 sm:h-10 text-blue-500" />
           </div>
@@ -259,8 +382,12 @@ const RoomManagement = () => {
         <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs sm:text-sm text-gray-600 mb-1">Potensi Pendapatan</p>
-              <p className="text-lg sm:text-xl font-bold text-purple-600">{formatCurrency(stats.totalRevenue)}</p>
+              <p className="text-xs sm:text-sm text-gray-600 mb-1">
+                Potensi Pendapatan
+              </p>
+              <p className="text-lg sm:text-xl font-bold text-purple-600">
+                {formatCurrency(stats.totalRevenue)}
+              </p>
             </div>
             <DollarSign className="w-8 h-8 sm:w-10 sm:h-10 text-purple-500" />
           </div>
@@ -276,9 +403,131 @@ const RoomManagement = () => {
         <span>Tambah Kamar Baru</span>
       </button>
 
+      {/* Search and Filter Section */}
+      <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 space-y-4">
+        {/* Month and Year Selectors */}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700">
+              Periode:
+            </label>
+            <select
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(Number(e.target.value))}
+              className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm font-medium"
+            >
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+                <option key={month} value={month}>
+                  {getMonthName(month)}
+                </option>
+              ))}
+            </select>
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(Number(e.target.value))}
+              className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm font-medium"
+            >
+              {Array.from(
+                { length: 5 },
+                (_, i) => new Date().getFullYear() - 2 + i
+              ).map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+          </div>
+          {!isCurrentMonth() && (
+            <button
+              onClick={resetToCurrentMonth}
+              className="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg text-sm font-medium hover:bg-purple-200 transition-all"
+            >
+              Reset ke Bulan Ini
+            </button>
+          )}
+        </div>
+
+        {/* Search Box */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Cari kamar berdasarkan nama, penyewa, atau email..."
+            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base"
+          />
+        </div>
+
+        {/* Filter Buttons */}
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setFilterStatus('all')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              filterStatus === 'all'
+                ? 'bg-purple-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            Semua ({rooms.length})
+          </button>
+          <button
+            onClick={() => setFilterStatus('rented')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              filterStatus === 'rented'
+                ? 'bg-green-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            Tersewa ({rooms.filter((r) => r.rentedUserId).length})
+          </button>
+          <button
+            onClick={() => setFilterStatus('empty')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              filterStatus === 'empty'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            Kosong ({rooms.filter((r) => !r.rentedUserId).length})
+          </button>
+          <button
+            onClick={() => setFilterStatus('paid')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              filterStatus === 'paid'
+                ? 'bg-green-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            <CheckCircle className="w-4 h-4 inline mr-1" />
+            Sudah Bayar - {getMonthName(selectedMonth)} (
+            {rooms.filter((r) => r.rentedUserId && r.isPaidThisMonth).length})
+          </button>
+          <button
+            onClick={() => setFilterStatus('unpaid')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              filterStatus === 'unpaid'
+                ? 'bg-orange-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            <AlertCircle className="w-4 h-4 inline mr-1" />
+            Belum Bayar - {getMonthName(selectedMonth)} (
+            {rooms.filter((r) => r.rentedUserId && !r.isPaidThisMonth).length})
+          </button>
+        </div>
+
+        {/* Results count */}
+        {(searchQuery || filterStatus !== 'all') && (
+          <div className="text-sm text-gray-600">
+            Menampilkan {getFilteredRooms().length} dari {rooms.length} kamar
+          </div>
+        )}
+      </div>
+
       {/* Rooms Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        {rooms.map((room) => (
+        {getFilteredRooms().map((room) => (
           <div
             key={room.id}
             className={`bg-white rounded-xl sm:rounded-2xl border-2 p-4 sm:p-6 transition-all hover:shadow-lg ${
@@ -288,15 +537,21 @@ const RoomManagement = () => {
             {/* Room Header */}
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">{room.name}</h3>
-                <p className="text-xl sm:text-2xl font-bold text-purple-600">{formatCurrency(room.price)}</p>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
+                  {room.name}
+                </h3>
+                <p className="text-xl sm:text-2xl font-bold text-purple-600">
+                  {formatCurrency(room.price)}
+                </p>
                 <p className="text-xs text-gray-500 mt-1">per bulan</p>
               </div>
-              <div className={`px-2 sm:px-3 py-1 rounded-full text-xs font-semibold ${
-                room.rentedUserId
-                  ? 'bg-green-100 text-green-700'
-                  : 'bg-blue-100 text-blue-700'
-              }`}>
+              <div
+                className={`px-2 sm:px-3 py-1 rounded-full text-xs font-semibold ${
+                  room.rentedUserId
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-blue-100 text-blue-700'
+                }`}
+              >
                 {room.rentedUserId ? 'Tersewa' : 'Kosong'}
               </div>
             </div>
@@ -304,12 +559,47 @@ const RoomManagement = () => {
             {/* Rented User Info */}
             {room.rentedUserId && room.rentedUser && (
               <div className="mb-4 p-3 bg-green-50 rounded-lg border border-green-200">
-                <p className="text-xs text-green-700 font-medium mb-1">Penyewa:</p>
-                <p className="text-sm font-semibold text-gray-900">{room.rentedUser.fullName}</p>
+                <p className="text-xs text-green-700 font-medium mb-1">
+                  Penyewa:
+                </p>
+                <p className="text-sm font-semibold text-gray-900">
+                  {room.rentedUser.fullName}
+                </p>
                 <p className="text-xs text-gray-600">{room.rentedUser.email}</p>
                 {room.rentStartDate && (
                   <p className="text-xs text-gray-500 mt-1">
-                    Mulai: {new Date(room.rentStartDate).toLocaleDateString('id-ID')}
+                    Mulai:{' '}
+                    {new Date(room.rentStartDate).toLocaleDateString('id-ID')}
+                  </p>
+                )}
+                {/* Payment Status for Current Month */}
+                <div
+                  className={`mt-2 pt-2 border-t border-green-200 flex items-center gap-2 ${
+                    room.isPaidThisMonth ? 'text-green-700' : 'text-orange-600'
+                  }`}
+                >
+                  {room.isPaidThisMonth ? (
+                    <>
+                      <CheckCircle className="w-4 h-4" />
+                      <span className="text-xs font-semibold">
+                        Sudah Bayar Bulan Ini
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertCircle className="w-4 h-4" />
+                      <span className="text-xs font-semibold">
+                        Belum Bayar Bulan Ini
+                      </span>
+                    </>
+                  )}
+                </div>
+                {room.paymentDetails && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Dikonfirmasi:{' '}
+                    {new Date(
+                      room.paymentDetails.confirmedAt
+                    ).toLocaleDateString('id-ID')}
                   </p>
                 )}
               </div>
@@ -353,10 +643,29 @@ const RoomManagement = () => {
           </div>
         ))}
 
-        {rooms.length === 0 && (
+        {getFilteredRooms().length === 0 && (
           <div className="col-span-full text-center py-12">
             <Home className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-600">Belum ada kamar. Klik "Tambah Kamar Baru" untuk mulai.</p>
+            {rooms.length === 0 ? (
+              <p className="text-gray-600">
+                Belum ada kamar. Klik "Tambah Kamar Baru" untuk mulai.
+              </p>
+            ) : (
+              <div>
+                <p className="text-gray-600 mb-2">
+                  Tidak ada kamar yang sesuai dengan filter.
+                </p>
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setFilterStatus('all');
+                  }}
+                  className="text-purple-600 hover:text-purple-700 font-medium text-sm"
+                >
+                  Reset Filter
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -366,7 +675,9 @@ const RoomManagement = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
           <div className="bg-white rounded-xl sm:rounded-2xl max-w-md w-full">
             <div className="p-4 sm:p-6 border-b border-gray-200 flex items-center justify-between">
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900">Tambah Kamar Baru</h3>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900">
+                Tambah Kamar Baru
+              </h3>
               <button
                 onClick={() => {
                   setShowCreateModal(false);
@@ -385,7 +696,9 @@ const RoomManagement = () => {
                 <input
                   type="text"
                   value={createForm.name}
-                  onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })}
+                  onChange={(e) =>
+                    setCreateForm({ ...createForm, name: e.target.value })
+                  }
                   placeholder="Contoh: Kamar A1"
                   className="w-full px-4 py-3 text-sm sm:text-base border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
                   required
@@ -398,7 +711,12 @@ const RoomManagement = () => {
                 <input
                   type="text"
                   value={createForm.price}
-                  onChange={(e) => setCreateForm({ ...createForm, price: handleNumberInput(e.target.value) })}
+                  onChange={(e) =>
+                    setCreateForm({
+                      ...createForm,
+                      price: handleNumberInput(e.target.value),
+                    })
+                  }
                   placeholder="1.500.000"
                   className="w-full px-4 py-3 text-sm sm:text-base border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
                   required
@@ -432,7 +750,9 @@ const RoomManagement = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
           <div className="bg-white rounded-xl sm:rounded-2xl max-w-md w-full">
             <div className="p-4 sm:p-6 border-b border-gray-200 flex items-center justify-between">
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900">Edit Kamar</h3>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900">
+                Edit Kamar
+              </h3>
               <button
                 onClick={() => {
                   setShowEditModal(false);
@@ -451,7 +771,9 @@ const RoomManagement = () => {
                 <input
                   type="text"
                   value={editForm.name}
-                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, name: e.target.value })
+                  }
                   className="w-full px-4 py-3 text-sm sm:text-base border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
                   required
                 />
@@ -463,7 +785,12 @@ const RoomManagement = () => {
                 <input
                   type="text"
                   value={editForm.price}
-                  onChange={(e) => setEditForm({ ...editForm, price: handleNumberInput(e.target.value) })}
+                  onChange={(e) =>
+                    setEditForm({
+                      ...editForm,
+                      price: handleNumberInput(e.target.value),
+                    })
+                  }
                   className="w-full px-4 py-3 text-sm sm:text-base border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
                   required
                 />
@@ -497,7 +824,9 @@ const RoomManagement = () => {
           <div className="bg-white rounded-xl sm:rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-auto">
             <div className="p-4 sm:p-6 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white z-10">
               <div className="flex-1 mr-2">
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900">Assign User ke {selectedRoom.name}</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900">
+                  Assign User ke {selectedRoom.name}
+                </h3>
                 {selectedUser && (
                   <p className="text-xs sm:text-sm text-green-600 mt-1">
                     Terpilih: {selectedUser.fullName}
@@ -546,12 +875,16 @@ const RoomManagement = () => {
                 </label>
 
                 {loadingUsers ? (
-                  <div className="text-center py-8 text-gray-500">Memuat daftar user...</div>
+                  <div className="text-center py-8 text-gray-500">
+                    Memuat daftar user...
+                  </div>
                 ) : getFilteredUsers().length === 0 ? (
                   <div className="text-center py-8">
                     <Users className="w-12 h-12 text-gray-300 mx-auto mb-2" />
                     <p className="text-gray-500">
-                      {userSearchQuery ? 'Tidak ada user yang cocok' : 'Tidak ada user tersedia'}
+                      {userSearchQuery
+                        ? 'Tidak ada user yang cocok'
+                        : 'Tidak ada user tersedia'}
                     </p>
                   </div>
                 ) : (
@@ -568,10 +901,16 @@ const RoomManagement = () => {
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <p className="font-semibold text-gray-900">{user.fullName}</p>
-                            <p className="text-sm text-gray-600">{user.email}</p>
+                            <p className="font-semibold text-gray-900">
+                              {user.fullName}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              {user.email}
+                            </p>
                             {user.phone && (
-                              <p className="text-xs text-gray-500 mt-1">{user.phone}</p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                {user.phone}
+                              </p>
                             )}
                           </div>
                           {selectedUser?.id === user.id && (
@@ -593,7 +932,12 @@ const RoomManagement = () => {
                   <input
                     type="date"
                     value={assignForm.rentStartDate}
-                    onChange={(e) => setAssignForm({ ...assignForm, rentStartDate: e.target.value })}
+                    onChange={(e) =>
+                      setAssignForm({
+                        ...assignForm,
+                        rentStartDate: e.target.value,
+                      })
+                    }
                     className="w-full px-4 py-3 text-sm sm:text-base border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>

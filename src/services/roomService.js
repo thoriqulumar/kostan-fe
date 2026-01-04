@@ -11,6 +11,24 @@ const roomService = {
     }
   },
 
+  // Get all rooms with payment status for current month
+  getRoomsWithPaymentStatus: async (month, year) => {
+    try {
+      const params = {};
+      if (month) params.month = month;
+      if (year) params.year = year;
+
+      const response = await api.get('/rooms/with-payment-status', { params });
+      return response.data;
+    } catch (error) {
+      throw (
+        error.response?.data || {
+          message: 'Failed to fetch rooms with payment status',
+        }
+      );
+    }
+  },
+
   // Create new room
   createRoom: async (name, price) => {
     try {
@@ -58,7 +76,9 @@ const roomService = {
       });
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Failed to assign user to room' };
+      throw (
+        error.response?.data || { message: 'Failed to assign user to room' }
+      );
     }
   },
 
@@ -76,7 +96,9 @@ const roomService = {
       });
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Failed to remove user from room' };
+      throw (
+        error.response?.data || { message: 'Failed to remove user from room' }
+      );
     }
   },
 };
